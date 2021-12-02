@@ -1,0 +1,23 @@
+FROM maven:3.6.0-jdk-8-slim
+
+# Копируем папочки
+ADD ./task6/DostavimVse /src
+
+WORKDIR /src
+
+# Jar
+RUN mvn clean package -Dmaven.test.skip -Dstart-class=ru.fivt.dostavimvse.DostavimvseApplication \
+  && mv /src/target/dostavimvse-0.0.1-SNAPSHOT.jar /app.jar \
+  && mvn clean package -Dmaven.test.skip -Dstart-class=Main \
+  && mv /src/target/dostavimvse-0.0.1-SNAPSHOT.jar /seeds.jar
+
+# Устанавливаем mysql
+RUN apt-get update && \
+    apt-get install -y mysql-client
+
+# Копируем файлики
+ADD ./task6/scripts/CREATE.sql /CREATE.sql
+ADD run_server.sh /run_server.sh
+RUN chmod +x /run_server.sh
+
+ENTRYPOINT [ "/run_server.sh" ]

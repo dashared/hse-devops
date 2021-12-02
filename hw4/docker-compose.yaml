@@ -1,0 +1,24 @@
+version: '3.7'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile2
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+  db:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+    healthcheck:
+      test: "/usr/bin/mysql --user=root --password=admin --execute \"SHOW
+        DATABASES;\""
+      interval: 3s
+      timeout: 2s
+      retries: 30
+    ports:
+      - "3306:3306"
